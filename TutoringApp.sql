@@ -51,20 +51,10 @@ CREATE DATABASE TutoringApp;
     FOREIGN KEY(Student_ID) REFERENCES Student(Student_ID) 
  );
  
- CREATE VIEW Math_Major_VW AS
- SELECT c.Course_Name, s.Student_First_Name, s.Student_Last_Name, t.Tutor_First_Name, t.Tutor_Last_Name, a.Location, a.Date, a.Time
- From Course c, Student s, Appointment a, Tutor t
- WHERE s.Student_ID = a.Student_ID AND a.Course_ID = c.Course_ID AND a.Tutor_ID = t.Tutor_ID AND c.Department_ID = 100;
- 
-CREATE VIEW Morning_Session_VW AS
-SELECT c.Course_Name, s.Student_First_Name, s.Student_Last_Name, t.Tutor_First_Name, t.Tutor_Last_Name, a.Location, a.Date, a.Time
+CREATE VIEW Admin_VW AS
+SELECT a.Appointment_ID, c.Course_Name, s.Student_First_Name, s.Student_Last_Name, t.Tutor_First_Name, t.Tutor_Last_Name, a.Date, a.Time
 From Course c, Student s, Appointment a, Tutor t
-WHERE s.Student_ID = a.Student_ID AND a.Course_ID = c.Course_ID AND a.Tutor_ID = t.Tutor_ID AND a.Time >= '00:00:00' AND a.Time < '12:00:00' ;
- 
-CREATE VIEW Afternoon_Session_VW AS
-SELECT c.Course_Name, s.Student_First_Name, s.Student_Last_Name, t.Tutor_First_Name, t.Tutor_Last_Name, a.Location, a.Date, a.Time
-From Course c, Student s, Appointment a, Tutor t
-WHERE s.Student_ID = a.Student_ID AND a.Course_ID = c.Course_ID AND a.Tutor_ID = t.Tutor_ID AND a.Time >= '12:00:00' AND a.Time < '24:00:00' ; 
+WHERE s.Student_ID = a.Student_ID AND a.Course_ID = c.Course_ID AND a.Tutor_ID = t.Tutor_ID;
  
 INSERT INTO Department (Department_ID, Department_Name)
 VALUES  ('100', 'Math'),
@@ -100,12 +90,6 @@ VALUES ('MH380', '2021-12-10', '11:00:00', '101', '1', '2'),
 	('FN230', '2021-12-21', '09:00:00', '102', '3', '5'),
 	('BS110', '2021-12-19', '10:00:00', '102', '3', '2');
     
-    
-SELECT * FROM Math_Major_VW;
-
-SELECT * FROM Morning_Session_VW;
-
-SELECT * FROM Afternoon_Session_VW;
 
 
 
