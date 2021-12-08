@@ -74,9 +74,8 @@ class Database:
         self.db.commit()
         print("Appointment with ID = {} was successfully deleted from records.\n".format(appointmentId))
 
-    def viewAppointment(self):
+    def viewUpcomingAppointments(self):
         today = date.today().strftime("%Y-%m-%d")
-        print(today)
         sql = "Select * from `Admin_VW` where `Date` >= (%s)"
         self.cursor.execute(sql, (today,))
 
@@ -88,6 +87,21 @@ class Database:
             print("Student = ", row[3], row[4])
             print("Tutor = ", row[6], row[7])
             print("Time = ", row[9], row[10])
+            print("\n")
+        print("— — — — — — — — — — — — — — — — — — —\n")
+
+    def viewTodayAppointments(self):
+        sql = "Select * from `today_appointment`"
+        self.cursor.execute(sql)
+
+        result = self.cursor.fetchall()
+        print("— — — — — Appointments for Today — — — — — —\n")
+        for row in result:
+            print("Appointment Id = ", row[0])
+            print("Course = ", row[1], row[2])
+            print("Student = ", row[3], row[4])
+            print("Tutor = ", row[6], row[7])
+            print("Time = ", row[10])
             print("\n")
         print("— — — — — — — — — — — — — — — — — — —\n")
     

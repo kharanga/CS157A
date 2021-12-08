@@ -3,7 +3,7 @@ import os
 
 host = os.getenv("MYSQL_HOST", "localhost")
 user = os.getenv("MYSQL_USER", "root")
-password = os.getenv("MYSQL_PASSWORD", "your-password")
+password = os.getenv("MYSQL_PASSWORD", "secret")
 database = os.getenv("MYSQL_DB", "tutoringapp")
 
 db = Database(host, user, password, database)
@@ -20,30 +20,29 @@ def displayMainMenu():
 
 def recordsMenu():
 	print("— — — Records — — — ")
-	print("1. Upcoming Appointments")
-	print("2. Past Appointments")
-	print("3. Appointments by Date")
-	print("4. Offered Courses by Tutors")
-	print("5. Registered Students")
-	print("6. Go Back")
+	print("1. Appointments for today")
+	print("2. Upcoming Appointments")
+	print("3. Past Appointments")
+	print("4. Appointments by Date")
+	print("5. Offered Courses by Tutors")
+	print("6. Registered Students")
+	print("7. Go Back")
 	print("— — — — — — — — — —")
 	n = int(input("Enter option: "))
 	if n == 1:
-		db.viewAppointment()
-		run()
+		db.viewTodayAppointments()
 	elif n == 2:
-		db.viewPastAppointments()
-		run()
+		db.viewUpcomingAppointments()
 	elif n == 3:
-		db.viewAppointmentsByDate()
-		run()
+		db.viewPastAppointments()
 	elif n == 4:
+		db.viewAppointmentsByDate()
+	elif n == 5:
 		db.viewCoursesAndTutors()
-		run()
-	elif n ==5:
-		db.viewStudents()
 	elif n == 6:
-		run()
+		db.viewStudents()
+	elif n == 7:
+		return
 	else:
 		recordsMenu()
 
