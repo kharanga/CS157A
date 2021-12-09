@@ -9,5 +9,6 @@ USER app_user
 COPY ./ .
 
 RUN pip3 install mysql-connector-python
+RUN pip3 install tabulate
 
 CMD ["bash"]

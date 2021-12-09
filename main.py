@@ -48,9 +48,12 @@ def recordsMenu():
 		recordsMenu()
 
 def delete():
-	print("— — — Appointment Cancellation — — —")
-	db.viewStudentAppointments()
-	db.deleteAppointment()
+	try:
+		print("— — — Appointment Cancellation — — —")
+		db.viewStudentAppointments()
+		db.deleteAppointment()
+	except:
+		print("Invalid input. Please try again.")
 
 def run():
 	while(True):
