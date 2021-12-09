@@ -1,6 +1,6 @@
 import mysql.connector
+from helper import *
 from datetime import date
-from tabulate import tabulate
 
 class Database:
     def __init__(self, host, user, password, database):
@@ -39,10 +39,15 @@ class Database:
         firstName = input("Enter student firstName : ")
         lastName = input("Enter student lastName : ")
         email = input("Enter student email : ")
+        validEmail = checkEmail(email)
+        if(validEmail == False):
+        		print("Email entered is invalid")
+        		return 
         sql = "INSERT INTO `Student` (`Student_First_Name`,`Student_Last_Name`,`Student_Email`) VALUES (%s,%s,%s)"
         val = (firstName,lastName,email)
-        error = self.cursor.execute(sql,val)
-        if error is not None:
+        try: 
+        		self.cursor.execute(sql,val)
+        except:
             print("Student already registered in the system.\n")
             return
         self.db.commit()
@@ -53,12 +58,50 @@ class Database:
         firstName = input("Enter tutor first name : ")
         lastName = input("Enter tutor last name : ")
         email = input("Enter tutor email : ")
+        validEmail = checkEmail(email)
+        if(validEmail == False):
+        		print("Email entered is invalid")
+        		return 
         sql = "INSERT INTO `Tutor` (`Tutor_First_Name`,`Tutor_Last_Name`,`Tutor_Email`) VALUES (%s,%s,%s)"
         val = (firstName,lastName,email)
-        error = self.cursor.execute(sql,val)
-        if error is not None:
+        try: 
+        		self.cursor.execute(sql,val)
+        except:
             print("Tutor already registered in the system.\n")
             return
+        lastId = self.cursor.lastrowid
+        sql = "SELECT * FROM `Department`"
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        print("— — — — —DEPARTMENT — — — — — —\n")
+        for row in result:
+            print(row[0])
+        department = input("Enter the department of this tutor: ")
+        sql = "UPDATE `Tutor` SET `Department` = %s WHERE  tutor_id = %s"
+        val = (department, lastId, )
+        try: 
+        		self.cursor.execute(sql,val)
+        except:
+            print("Department entered is invalid.\n")
+            return
+
+        sql = "SELECT * FROM `Course`"
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        print("— — — — —OFFERED COURSES — — — — — —\n")
+        for row in result:
+            print("Course ID = ", row[0])
+            print("Course Name = ", row[1])
+        courseSelected = input("Enter courses that this tutor is qualified for, press e to finish selection: ")
+        while(courseSelected != "e"):
+        		try:
+        			sql = "INSERT INTO `Qualification` (`Tutor_ID`,`Course_ID`) VALUES (%s,%s)"
+        			val = (lastId, courseSelected)
+        			self.cursor.execute(sql, val)
+        			courseSelected = input("Enter courses that this tutor is qualified for, press e to finish selection: ")
+        		except: 
+        			print("The course entered is invalid")
+        			return
         self.db.commit()
         print("— — — SUCCESS — — — \n")
 
@@ -70,7 +113,7 @@ class Database:
         val = (appointmentId,)
         error = self.cursor.execute(sql, val)
         if error is not None:
-            print("Invalid Appointment ID. Please try again.\n")
+            print("Invalid Appointment ID. Please try again.")
             return
         self.db.commit()
         print("Appointment with ID = {} was successfully deleted from records.\n".format(appointmentId))
@@ -79,26 +122,31 @@ class Database:
         today = date.today().strftime("%Y-%m-%d")
         sql = "Select * from `Admin_VW` where `Date` >= (%s)"
         self.cursor.execute(sql, (today,))
-        results = self.cursor.fetchall()
-        if results is None:
-            print("No upcoming appointments.\n")
-            return
+
+        result = self.cursor.fetchall()
         print("— — — — — Upcoming Appointments— — — — — —\n")
-        columns = [i[0] for i in self.cursor.description]
-        print(tabulate(results, headers=columns))
+        for row in result:
+            print("Appointment Id = ", row[0])
+            print("Course = ", row[1], row[2])
+            print("Student = ", row[3], row[4])
+            print("Tutor = ", row[6], row[7])
+            print("Time = ", row[9], row[10])
+            print("\n")
         print("— — — — — — — — — — — — — — — — — — —\n")
 
     def viewTodayAppointments(self):
-        sql = """Select appointment_id, course_id, course_name, student_first_name, student_last_name, 
-                 tutor_first_name, tutor_last_name, time from `today_appointment`"""
+        sql = "Select * from `today_appointment`"
         self.cursor.execute(sql)
-        results = self.cursor.fetchall()
-        if results is None:
-            print("No appointments today.\n")
-            return
+
+        result = self.cursor.fetchall()
         print("— — — — — Appointments for Today — — — — — —\n")
-        columns = [i[0] for i in self.cursor.description]
-        print(tabulate(results, headers=columns))
+        for row in result:
+            print("Appointment Id = ", row[0])
+            print("Course = ", row[1], row[2])
+            print("Student = ", row[3], row[4])
+            print("Tutor = ", row[6], row[7])
+            print("Time = ", row[10])
+            print("\n")
         print("— — — — — — — — — — — — — — — — — — —\n")
     
     def viewAppointmentsByDate(self):
@@ -107,14 +155,19 @@ class Database:
             sql="Select * from `Admin_VW` Where `Date` = (%s)"
             val = (date,)
             self.cursor.execute(sql, val)
-            results = self.cursor.fetchall()
-            if results is None:
+            result = self.cursor.fetchall()
+            if result is None:
                 print("No appointments on that date.\n")
                 return
             print("— — — — Appointments on {} — — — — — — —\n".format(date))
-            columns = [i[0] for i in self.cursor.description]
-            print(tabulate(results, headers=columns))
-            print("— — — — — — — — — — — — — — — — — —\n")
+            for row in result:
+                print("Appointment Id = ", row[0])
+                print("Course = ", row[1], row[2])
+                print("Student = ", row[3], row[4])
+                print("Tutor = ", row[6], row[7])
+                print("Time = ", row[9], row[10])
+                print("\n")
+                print("— — — — — — — — — — — — — — — — — —\n")
         except:
             print("Invalid date input. Please try again.\n")
         
@@ -124,12 +177,18 @@ class Database:
         sql = "Select * from `Admin_VW` where `Date` <= (%s)"
         self.cursor.execute(sql, (today,))
 
-        results = self.cursor.fetchall()
-        if results is None:
+        result = self.cursor.fetchall()
+        if result is None:
             print("No appointments found.\n")
             return
-        columns = [i[0] for i in self.cursor.description]
-        print(tabulate(results, headers=columns))
+        print("— — — — — — — — — — — — — — — — — — —\n")
+        for row in result:
+            print("Appointment Id = ", row[0])
+            print("Course = ", row[1], row[2])
+            print("Student = ", row[3], row[4])
+            print("Tutor = ", row[6], row[7])
+            print("Time = ", row[9], row[10])
+            print("\n")
         print("— — — — — — — — — — — — — — — — — —\n")
 
     def bookAppointment(self):
@@ -149,12 +208,15 @@ class Database:
                 print("Invalid Course ID. Please try again.")
                 return
             date = input("Enter date (YYYY-MM-DD) : ")
+            validDate = checkDate(date)
+            if(validDate == False):
+            	print("Date entered has past")
+            	return
             sql = "SELECT * FROM `Tutor_Full_Info` WHERE `Course_ID` = (%s)"
             self.cursor.execute(sql, (course,))
             result = self.cursor.fetchall()
             for row in result:
-                sql="""SELECT * FROM `Timeslot` WHERE NOT EXISTS (SELECT * FROM `Appointment` WHERE 
-                       `Tutor_ID` = (%s) AND `Date` = (%s) AND `Appointment`.`Time` = `Timeslot`.`Timeslot`)"""
+                sql="SELECT * FROM `Timeslot` WHERE NOT EXISTS (SELECT * FROM `Appointment` WHERE `Tutor_ID` = (%s) AND `Date` = (%s) AND `Appointment`.`Time` = `Timeslot`.`Timeslot`)"
                 self.cursor.execute(sql, (row[0], date))
                 timeslots = self.cursor.fetchall()
                 if timeslots is None:
@@ -165,10 +227,11 @@ class Database:
                 for timeslot in timeslots:
                     print(timeslot[0])
                 print()
-            tutor_id = input("Enter tutor ID : ")
+            tutor_id = int(input("Enter tutor ID : "))
             exists = False
             for row in result:
-                if row[0] == tutor_id:
+            	 print(row[0])
+            	 if row[0] == tutor_id:
                     exists = True
                     break
             if not exists:
@@ -209,19 +272,20 @@ class Database:
     def viewStudentAppointments(self):
         try:
             student_email = input("Enter student email : ")
-            sql = """SELECT appointment_id, course_id, course_name, tutor_first_name,
-                     tutor_last_name, date, time FROM `admin_vw` WHERE `student_email` = (%s)"""
+            sql = "SELECT * FROM `admin_vw` WHERE `student_email` = (%s)"
             self.cursor.execute(sql, (student_email,))
-            results = self.cursor.fetchall()
-            if results is None:
-                print("Student has no appointments yet.\n")
-                return
+
+            result = self.cursor.fetchall()
             print("— — — — Appointments — — — — — — —\n")
-            columns = [i[0] for i in self.cursor.description]
-            print(tabulate(results, headers=columns))
+            for row in result:
+                print("Appointment Id = ", row[0])
+                print("Course = ", row[1], row[2])
+                print("Tutor = ", row[6], row[7])
+                print("Time = ", row[9], row[10])
+                print()
             print("— — — — — — — — — — — — — — — — — —")
         except:
-            raise Exception
+            print("Student with such email not found.\n")
 
     def viewCoursesAndTutors(self):
         print("— — — Offered Courses by Tutors — — — \n")
@@ -241,30 +305,12 @@ class Database:
         print("— — — — — — — — — — — — — — — — — —\n")
 
     def viewStudents(self):
+        print("— — — Registered Students — — — \n")
         sql = "SELECT * FROM `student`"
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
-        if results is None:
-            print("No registered students found.\n")
-            return
-        print("— — — Registered Students — — — \n")
-        columns = [i[0] for i in self.cursor.description]
-        print(tabulate(results, headers=columns))
-        print("— — — — — — — — — — — — — — — — — —\n")
-
-    def executeInput(self):
-        try:
-            print("— — — Direct Database Manipulation — — — \n")
-            print("This option is recommended for ADVANCED users only")
-            print("who have previous experience with RDBMS and SQL.")
-            print("This option allows you to interact with the")
-            print("database directly using SQL commands.\n")
-            sql = input("Enter SQL command: ")
-            self.cursor.execute(sql)
-            columns = [i[0] for i in self.cursor.description]
-            results = self.cursor.fetchall()
+        for row in results:
+            print("Name: ", row[0], row[1])
+            print("Email: ", row[2])
             print()
-            print(tabulate(results, headers=columns))
-            print("— — — — — — — — — — — — — — — — — —\n")
-        except:
-            print("Invalid SQL command or values. Please try again.\n")
+        print("— — — — — — — — — — — — — — — — — —\n")
