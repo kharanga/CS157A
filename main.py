@@ -15,7 +15,8 @@ def displayMainMenu():
 	print("3. Book Appointment")
 	print("4. Cancel Appointment")
 	print("5. Records")
-	print("6. Exit")
+	print("6. Direct database manipulation (advanced)")
+	print("7. Exit")
 	print("— — — — — — — — — —")
 
 def recordsMenu():
@@ -66,6 +67,8 @@ def run():
 		elif n == 5:
 			recordsMenu()
 		elif n == 6:
+			db.executeInput()
+		elif n == 7:
 			print("- - - Thank You - - -")
 			exit()
 		else:

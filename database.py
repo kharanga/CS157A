@@ -265,3 +265,21 @@ class Database:
             print("Email: ", row[2])
             print()
         print("— — — — — — — — — — — — — — — — — —\n")
+
+    def executeInput(self):
+        try:
+            print("— — — Direct Database Manipulation — — — \n")
+            print("This option is recommended for ADVANCED users only")
+            print("who have previous experience with RDBMS and SQL.")
+            print("This option allows you to interact with the")
+            print("database directly using SQL commands.\n")
+            sql = input("Enter SQL command: ")
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            print()
+            for row in results:
+                print(row)
+                print()
+            print("— — — — — — — — — — — — — — — — — —\n")
+        except:
+            print("Invalid SQL command or values. Please try again.\n")
