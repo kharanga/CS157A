@@ -230,7 +230,6 @@ class Database:
             tutor_id = int(input("Enter tutor ID : "))
             exists = False
             for row in result:
-            	 print(row[0])
             	 if row[0] == tutor_id:
                     exists = True
                     break
